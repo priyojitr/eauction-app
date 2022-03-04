@@ -74,8 +74,9 @@ public class SellerServiceImpl implements SellerService {
 				throw new SellerNotCreatedException("seller last name validation failure");
 			else if (sellerDto.getPhone().length() != 10)
 				throw new SellerNotCreatedException("seller phone number validation failure");
-			else if (!Pattern.compile("^(.+)@(.+)$").matcher(sellerDto.getEmail()).matches())
-				throw new SellerNotCreatedException("seller email validation failure: " + sellerDto.getEmail());
+			else if (null == sellerDto.getEmail()
+					|| !Pattern.compile("^(.+)@(.+)$").matcher(sellerDto.getEmail()).matches())
+				throw new SellerNotCreatedException("seller email validation failure");
 			log.info("saving seller details");
 			Seller seller = Seller.builder().firstName(sellerDto.getFirstName()).lastName(sellerDto.getLastName())
 					.address(sellerDto.getAddress()).city(sellerDto.getCity()).state(sellerDto.getState())

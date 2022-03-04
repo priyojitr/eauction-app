@@ -38,20 +38,14 @@ public class BuyerServiceImpl implements BuyerService {
 				throw new BuyerNotCreatedException("buyer last name validation failure");
 			else if (buyerDto.getPhone().length() != 10)
 				throw new BuyerNotCreatedException("buyer phone number validation failure");
-			else if (!Pattern.compile("^(.+)@(.+)$").matcher(buyerDto.getEmail()).matches())
-				throw new BuyerNotCreatedException("buyer email validation failure: " + buyerDto.getEmail());
+			else if (null == buyerDto.getEmail()
+					|| !Pattern.compile("^(.+)@(.+)$").matcher(buyerDto.getEmail()).matches())
+				throw new BuyerNotCreatedException("buyer email validation failure");
 			log.info("saving buyer details");
-			Buyer buyer = Buyer.builder()
-					.firstName(buyerDto.getFirstName())
-					.lastName(buyerDto.getLastName())
-					.address(buyerDto.getAddress())
-					.city(buyerDto.getCity())
-					.state(buyerDto.getState())
-					.pin(buyerDto.getPin())
-					.phone(buyerDto.getPhone())
-					.email(buyerDto.getEmail())
-					.bidAmount(buyerDto.getBidAmount())
-					.build();
+			Buyer buyer = Buyer.builder().firstName(buyerDto.getFirstName()).lastName(buyerDto.getLastName())
+					.address(buyerDto.getAddress()).city(buyerDto.getCity()).state(buyerDto.getState())
+					.pin(buyerDto.getPin()).phone(buyerDto.getPhone()).email(buyerDto.getEmail())
+					.bidAmount(buyerDto.getBidAmount()).build();
 			return this.buyerRepository.save(buyer);
 		} catch (Exception e) {
 			log.error(e.getMessage() + " -- " + e.getClass().getName());
@@ -63,7 +57,7 @@ public class BuyerServiceImpl implements BuyerService {
 	public List<Buyer> getAllBuyers() throws BuyerNotFoundException {
 		return this.buyerRepository.findAll();
 	}
-	
+
 	@Override
 	public Buyer getBuyerByEmailId(String buyerEmailId) throws BuyerNotFoundException {
 		return this.buyerRepository.findByEmail(buyerEmailId);

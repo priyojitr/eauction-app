@@ -45,14 +45,17 @@ public class SellerApiController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<Seller> registerSeller(@RequestBody SellerDTO sellerDto) throws SellerNotCreatedException {
+	public ResponseEntity<Seller> registerSeller(@RequestBody SellerDTO sellerDto) {
 		log.info("begin seller registration");
 		try {
 			Seller seller = this.sellerService.register(sellerDto);
 			return new ResponseEntity<>(seller, HttpStatus.CREATED);
 		} catch (SellerNotCreatedException e) {
 			log.error("{} -- {}", e.getClass().getName(), e.getMessage());
-			throw new SellerNotCreatedException(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}catch (Exception e) {
+			log.error("{} -- {}", e.getClass().getName(), e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
