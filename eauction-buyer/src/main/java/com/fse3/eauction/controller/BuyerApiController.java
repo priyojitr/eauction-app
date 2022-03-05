@@ -15,11 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fse3.eauction.dto.BidDTO;
 import com.fse3.eauction.dto.BuyerDTO;
 import com.fse3.eauction.exception.BuyerNotCreatedException;
 import com.fse3.eauction.exception.BuyerNotDeletedException;
 import com.fse3.eauction.exception.BuyerNotFoundException;
+import com.fse3.eauction.model.Bid;
 import com.fse3.eauction.model.Buyer;
+import com.fse3.eauction.service.BidNotPlacedException;
 import com.fse3.eauction.service.BuyerService;
 
 import lombok.extern.log4j.Log4j2;
@@ -37,6 +40,37 @@ public class BuyerApiController {
 	@Autowired
 	public BuyerApiController(BuyerService buyerService) {
 		this.buyerService = buyerService;
+	}
+
+	@PostMapping(value = "/place-bid")
+	public ResponseEntity<Bid> placeBid(@RequestBody BidDTO bidDto) {
+		log.info("placing bid for product");
+		try {
+			Bid bid = this.buyerService.placeBid(bidDto);
+			return new ResponseEntity<>(bid, HttpStatus.CREATED);
+		} catch (BuyerNotFoundException | BidNotPlacedException e) {
+			log.error("{} -- {}", e.getClass().getName(), e.getMessage());
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			log.error("{} -- {}", e.getClass().getName(), e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PostMapping("/update-bid/{productId}/{buyerEmailId}/{newBidAmount}")
+	public ResponseEntity<Bid> updateBid(@PathVariable String productId, @PathVariable String buyerEmailId,
+			@PathVariable float newBidAmount) {
+		log.info("update existing bid for a product");
+		try {
+			Bid bid = this.buyerService.updateBid(productId, buyerEmailId, newBidAmount);
+			return new ResponseEntity<>(bid, HttpStatus.ACCEPTED);
+		} catch (BuyerNotFoundException | BidNotPlacedException e) {
+			log.error("{} -- {}", e.getClass(), e.getMessage());
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			log.error("{} -- {}", e.getClass(), e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	@GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)

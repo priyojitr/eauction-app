@@ -1,23 +1,28 @@
 package com.fse3.eauction.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fse3.eauction.dto.ProductBidDTO;
 import com.fse3.eauction.dto.ProductDTO;
 import com.fse3.eauction.dto.SellerDTO;
 import com.fse3.eauction.exception.ProductNotCreatedException;
+import com.fse3.eauction.exception.ProductNotDeletedException;
+import com.fse3.eauction.exception.ProductNotFoundException;
 import com.fse3.eauction.exception.SellerNotCreatedException;
 import com.fse3.eauction.exception.SellerNotDeletedException;
 import com.fse3.eauction.exception.SellerNotFoundException;
+import com.fse3.eauction.model.Bid;
 import com.fse3.eauction.model.Product;
 import com.fse3.eauction.model.Seller;
+import com.fse3.eauction.repository.BidRepository;
 import com.fse3.eauction.repository.ProductRepository;
 import com.fse3.eauction.repository.SellerRepository;
 
@@ -29,12 +34,15 @@ public class SellerServiceImpl implements SellerService {
 
 	private final SellerRepository sellerRepository;
 	private final ProductRepository productRepository;
+	private final BidRepository bidRepository;
 	private static final List<String> PRODUCT_CATEGORY = Arrays.asList("PAINTING", "SCULPTOR", "ORNAMENT");
 
 	@Autowired
-	public SellerServiceImpl(SellerRepository sellerRepository, ProductRepository productRepository) {
+	public SellerServiceImpl(SellerRepository sellerRepository, ProductRepository productRepository,
+			BidRepository bidRepository) {
 		this.sellerRepository = sellerRepository;
 		this.productRepository = productRepository;
+		this.bidRepository = bidRepository;
 	}
 
 	@Override
@@ -47,8 +55,6 @@ public class SellerServiceImpl implements SellerService {
 			throw new ProductNotCreatedException("invalid product category!");
 		} else if ((new Date()).after(productDto.getBidEndDate())) {
 			throw new ProductNotCreatedException("invalid bid end date!");
-		} else if (!NumberUtils.isParsable(productDto.getStartingPrice())) {
-			throw new ProductNotCreatedException("invalid starting price!");
 		} else {
 			try {
 				Product product = Product.builder().productName(productDto.getProductName())
@@ -62,6 +68,39 @@ public class SellerServiceImpl implements SellerService {
 				throw new ProductNotCreatedException("unable to add new product");
 			}
 		}
+	}
+
+	@Override
+	public List<ProductBidDTO> showBidList(String productId) throws ProductNotFoundException {
+		Optional<Product> product = Optional.ofNullable(this.productRepository.findById(productId)).get();
+		if (!product.isPresent())
+			throw new ProductNotFoundException("invalid product id provided");
+		List<Bid> bidList = this.bidRepository.findByProductIdOrderByBidAmountDesc(product.get().getProductId());
+		List<ProductBidDTO> productBids = new ArrayList<>();
+		for (Bid bid : bidList) {
+			productBids.add(ProductBidDTO.builder().bidAmount(bid.getBidAmount()).product(product.get()).build());
+		}
+		return productBids;
+	}
+
+	@Override
+	public void deleteProduct(String productId) throws ProductNotFoundException, ProductNotDeletedException {
+		log.info("validate product id to delete product");
+		Optional<Product> existingProduct = Optional.ofNullable(this.productRepository.findById(productId)).get();
+		if (!existingProduct.isPresent())
+			throw new ProductNotFoundException("invalid product id");
+		Optional<List<Bid>> existingBidList = Optional.ofNullable(this.bidRepository.findAllByProductId(productId));
+		if ((new Date()).after(existingProduct.get().getBidEndDate()))
+			throw new ProductNotDeletedException("unable to delete product after bid end date");
+		else if (existingBidList.isPresent() && existingBidList.get().size() > 0)
+			throw new ProductNotDeletedException("unable to delete product having a bid placed");
+		else
+			this.productRepository.deleteById(productId);
+	}
+
+	@Override
+	public List<Product> getAllProducts() {
+		return this.productRepository.findAll();
 	}
 
 	@Override

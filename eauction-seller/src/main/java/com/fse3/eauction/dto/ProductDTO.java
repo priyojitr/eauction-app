@@ -2,6 +2,9 @@ package com.fse3.eauction.dto;
 
 import java.util.Date;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +19,9 @@ public class ProductDTO {
 	private String shortDescription;
 	private String detailDescription;
 	private String category;
-	private String startingPrice;
+	private float startingPrice;
 	private Date bidEndDate;
+	@NotNull
+	@Email
 	private String sellerEmailId;
 }

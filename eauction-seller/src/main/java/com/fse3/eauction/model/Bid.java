@@ -1,9 +1,6 @@
 package com.fse3.eauction.model;
 
-import java.util.Date;
-
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,17 +14,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Data
-@Document(value = "products")
-public class Product {
+@Document(value = "bids")
+public class Bid {
 	@Id
+	private String bidId;
+	@NotNull
+	private String sellerId;
+	@NotNull
+	private String buyerId;
+	@NotNull
 	private String productId;
 	@NotNull
-	@Size(min = 5,max = 30,message = "{validation.product.name.length}")
-	private String productName;
-	private String shortDescription;
-	private String detailDescription;
-	private String category;
-	private float startingPrice;
-	private Date bidEndDate;
-	private String sellerEmailId;
+	private float bidAmount;
+	@NotNull
+	private boolean active;
 }

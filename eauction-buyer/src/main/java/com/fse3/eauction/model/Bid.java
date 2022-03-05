@@ -3,6 +3,7 @@ package com.fse3.eauction.model;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -15,15 +16,18 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 @Document(value = "bids")
+@CompoundIndex(name = "productId_buyerEmail", def = "{'productId':1,'buyerEmailId':1}")
 public class Bid {
+	
 	@Id
 	private String bidId;
 	@NotNull
-	private String sellerId;
-	@NotNull
 	private String buyerId;
 	@NotNull
-	private String productId;
+	private String buyerEmailId;
 	@NotNull
-	private boolean active;
+	private float bidAmount;
+	@NotNull
+	private String productId;
+
 }
