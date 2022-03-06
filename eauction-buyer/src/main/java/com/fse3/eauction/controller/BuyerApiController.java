@@ -22,6 +22,7 @@ import com.fse3.eauction.exception.BuyerNotDeletedException;
 import com.fse3.eauction.exception.BuyerNotFoundException;
 import com.fse3.eauction.model.Bid;
 import com.fse3.eauction.model.Buyer;
+import com.fse3.eauction.producer.BidMessageSender;
 import com.fse3.eauction.service.BidNotPlacedException;
 import com.fse3.eauction.service.BuyerService;
 
@@ -36,10 +37,12 @@ public class BuyerApiController {
 	private String appName;
 
 	private final BuyerService buyerService;
+	private BidMessageSender sender;
 
 	@Autowired
-	public BuyerApiController(BuyerService buyerService) {
+	public BuyerApiController(BuyerService buyerService, BidMessageSender sender) {
 		this.buyerService = buyerService;
+		this.sender = sender;
 	}
 
 	@PostMapping(value = "/place-bid")
@@ -47,6 +50,8 @@ public class BuyerApiController {
 		log.info("placing bid for product");
 		try {
 			Bid bid = this.buyerService.placeBid(bidDto);
+			log.info("new bid placed - {}", bidDto);
+			sender.sendMessage(bidDto.toString());
 			return new ResponseEntity<>(bid, HttpStatus.CREATED);
 		} catch (BuyerNotFoundException | BidNotPlacedException e) {
 			log.error("{} -- {}", e.getClass().getName(), e.getMessage());
