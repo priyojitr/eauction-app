@@ -1,0 +1,42 @@
+# Dockerfile added in both services
+version: '3'
+services:
+  mongo_db:
+    image: mongo:latest
+    container_name: mongo-db
+    restart: always
+    ports: 
+      - '28018:27017'
+
+  active_mq:
+    image: rmohr/activemq:latest
+    container_name: activemq
+    restart: always
+    ports: 
+      - '61616:61616'
+      - '5672:5672'
+      - '61613:61613'
+      - '1883:1883'
+      - '8161:8161'
+
+  buyer_svc:
+    image: eauc-buyer-svc:latest
+    build: ./eauction-buyer/
+    container_name: buyer-svc-dock
+    restart: always
+    ports:
+      - '8082:8082'
+    depends_on:
+      - mongo_db
+      - active_mq
+
+  seller_svc:
+    image: eauc-seller-svc:latest
+    build: ./eauction-seller/
+    container_name: seller-svc-dock
+    restart: always
+    ports:
+      - '8081:8081'
+    depends_on:
+      - mongo_db
+      - active_mq
