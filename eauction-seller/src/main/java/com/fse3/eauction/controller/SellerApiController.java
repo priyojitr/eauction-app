@@ -33,6 +33,7 @@ import lombok.extern.log4j.Log4j2;
 @RestController
 @RequestMapping(value = "/e-auction/api/v1/seller", produces = MediaType.APPLICATION_JSON_VALUE)
 @Log4j2
+@SuppressWarnings("all")
 public class SellerApiController {
 
 	@Value("${spring.application.name}")

@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fse3.eauction.dto.BidDTO;
 import com.fse3.eauction.dto.BuyerDTO;
+import com.fse3.eauction.exception.BidNotPlacedException;
 import com.fse3.eauction.exception.BuyerNotCreatedException;
 import com.fse3.eauction.exception.BuyerNotDeletedException;
 import com.fse3.eauction.exception.BuyerNotFoundException;
 import com.fse3.eauction.model.Bid;
 import com.fse3.eauction.model.Buyer;
 import com.fse3.eauction.producer.BidMessageSender;
-import com.fse3.eauction.service.BidNotPlacedException;
 import com.fse3.eauction.service.BuyerService;
 
 import lombok.extern.log4j.Log4j2;
@@ -31,6 +31,7 @@ import lombok.extern.log4j.Log4j2;
 @RestController
 @RequestMapping(value = "/e-auction/api/v1/buyer", produces = MediaType.APPLICATION_JSON_VALUE)
 @Log4j2
+@SuppressWarnings("all")
 public class BuyerApiController {
 
 	@Value("${spring.application.name}")

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.fse3.eauction.dto.BidDTO;
 import com.fse3.eauction.dto.BuyerDTO;
+import com.fse3.eauction.exception.BidNotPlacedException;
 import com.fse3.eauction.exception.BuyerNotCreatedException;
 import com.fse3.eauction.exception.BuyerNotDeletedException;
 import com.fse3.eauction.exception.BuyerNotFoundException;
@@ -45,13 +46,13 @@ public class BuyerServiceImpl implements BuyerService {
 		Optional<Buyer> existingBuyer = Optional.ofNullable(this.buyerRepository.findByEmail(bidDto.getBuyerEmailId()));
 		Optional<Product> existingProduct = Optional.ofNullable(this.productRepository.findById(bidDto.getProductId()))
 				.get();
+		if (!existingProduct.isPresent())
+			throw new BidNotPlacedException("product not found");
+		else if (!existingBuyer.isPresent())
+			throw new BuyerNotFoundException("buyer info not found for placing bid");
 		Optional<Bid> existingBid = Optional.ofNullable(this.bidRepository
 				.findByProductIdAndBuyerEmailId(existingProduct.get().getProductId(), existingBuyer.get().getEmail()));
-		if (!existingBuyer.isPresent())
-			throw new BuyerNotFoundException("buyer info not found for placing bid");
-		else if (!existingProduct.isPresent())
-			throw new BidNotPlacedException("product not found");
-		else if ((new Date()).after(existingProduct.get().getBidEndDate()))
+		if ((new Date()).after(existingProduct.get().getBidEndDate()))
 			throw new BidNotPlacedException("past bid end date");
 		else if (existingBid.isPresent())
 			throw new BidNotPlacedException("cannot place bid for the same the product");
@@ -70,6 +71,8 @@ public class BuyerServiceImpl implements BuyerService {
 		if (!existingBid.isPresent())
 			throw new BidNotPlacedException("bid not found for the product");
 		Optional<Product> existingProduct = Optional.ofNullable(this.productRepository.findById(productId)).get();
+		if (!existingProduct.isPresent())
+			throw new BidNotPlacedException("invalid product id");
 		if ((new Date()).after(existingProduct.get().getBidEndDate()))
 			throw new BidNotPlacedException("cannot update bid past bid end date");
 		Bid bid = Bid.builder().bidAmount(newBidAmount).bidId(existingBid.get().getBidId())

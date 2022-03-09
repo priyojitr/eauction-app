@@ -1,5 +1,7 @@
 package com.fse3.eauction;
 
+import java.util.Arrays;
+
 import javax.jms.ConnectionFactory;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -21,6 +23,7 @@ public class ActiveMQConfigProducer {
 	public ConnectionFactory connectionFactory() {
 		ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory();
 		activeMQConnectionFactory.setBrokerURL(this.brokerUrl);
+		activeMQConnectionFactory.setTrustedPackages(Arrays.asList("com.fse.eauction"));
 		return activeMQConnectionFactory;
 	}
 	

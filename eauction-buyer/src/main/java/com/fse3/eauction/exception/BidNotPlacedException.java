@@ -1,4 +1,4 @@
-package com.fse3.eauction.service;
+package com.fse3.eauction.exception;
 
 public class BidNotPlacedException extends Exception {
 

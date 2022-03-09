@@ -92,7 +92,7 @@ public class SellerServiceImpl implements SellerService {
 		Optional<List<Bid>> existingBidList = Optional.ofNullable(this.bidRepository.findAllByProductId(productId));
 		if ((new Date()).after(existingProduct.get().getBidEndDate()))
 			throw new ProductNotDeletedException("unable to delete product after bid end date");
-		else if (existingBidList.isPresent() && existingBidList.get().size() > 0)
+		else if (existingBidList.isPresent() && existingBidList.get().isEmpty())
 			throw new ProductNotDeletedException("unable to delete product having a bid placed");
 		else
 			this.productRepository.deleteById(productId);

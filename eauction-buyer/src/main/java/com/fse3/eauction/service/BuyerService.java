@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fse3.eauction.dto.BidDTO;
 import com.fse3.eauction.dto.BuyerDTO;
+import com.fse3.eauction.exception.BidNotPlacedException;
 import com.fse3.eauction.exception.BuyerNotCreatedException;
 import com.fse3.eauction.exception.BuyerNotDeletedException;
 import com.fse3.eauction.exception.BuyerNotFoundException;
