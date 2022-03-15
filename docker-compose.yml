@@ -20,7 +20,7 @@ services:
       - '8161:8161'
 
   buyer_svc:
-    image: eauc-buyer-svc:latest
+    image: eauc-buyer-dbdock:latest
     build: ./eauction-buyer/
     container_name: buyer-svc-dock
     restart: always
@@ -31,7 +31,7 @@ services:
       - active_mq
 
   seller_svc:
-    image: eauc-seller-svc:latest
+    image: eauc-seller-dbdock:latest
     build: ./eauction-seller/
     container_name: seller-svc-dock
     restart: always
